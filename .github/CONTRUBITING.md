@@ -1,6 +1,6 @@
 In order to contribute to this repo ensure that you do the following!
 
-1. Creach a branch off master and name your branch based on what your task is going to be
+1. Creach a branch off `main` and name your branch based on what your task is going to be
 2. Do the work that you are wanting to do, ensure that you are commenting your code and ensuring that all the complex portions of the code are clear on their purpose
 3. Once you are ready to push, commit your changes to your branch and push them to the branch. (ENSURE THAT YOU INSTALL PRE-COMMIT HOOKS)
 4. Make a Pull Request to the master branch and ensure that you fill our the template populated when creating a pull request
