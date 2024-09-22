@@ -8,7 +8,7 @@
                             <v-list-item v-for="message in messages" :key="message.id"
                                 :class="{ 'assistant-message': message.author === 'assistant' }">
                                 <v-list-item-content>
-                                    <v-list-item-title>{{ message.text }}</v-list-item-title>
+                                    <v-list-item-title class="wrapped-text">{{ message.text }}</v-list-item-title>
                                 </v-list-item-content>
                             </v-list-item>
                         </v-list-item-group>
@@ -62,5 +62,13 @@ export default {
 <style scoped>
 .assistant-message {
     background-color: #f0f0f0;
+}
+.wrapped-text {
+    word-wrap: break-word; /* Ensures text wraps */
+    white-space: normal;   /* Allows text to move to the next line */
+}
+.v-list-item {
+    min-height: auto; /* Allows item to expand with content */
+    overflow-y: auto; /* Adds scroll on Y-axis if needed */
 }
 </style>
