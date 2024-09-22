@@ -5,7 +5,8 @@
                 <v-card>
                     <v-list>
                         <v-list-item-group v-model="selectedItem">
-                            <v-list-item v-for="message in messages" :key="message.id">
+                            <v-list-item v-for="message in messages" :key="message.id"
+                                :class="{ 'system-message': message.author === 'system' }">
                                 <v-list-item-content>
                                     <v-list-item-title>{{ message.text }}</v-list-item-title>
                                 </v-list-item-content>
@@ -42,15 +43,15 @@ export default {
         },
         sendMessage() {
             if (this.newMessage) {
-                // TODO: API call to send this.newMessage
-                axios.post('http://localhost:8000/send/', { text: this.newMessage })
+                axios.post('http://localhost:8000/send/', { text: this.newMessage, author: 'user' })
                     .then(response => {
-                        this.messages.push(response.data);  // Assuming the API returns the sent message
+                        this.messages = response.data;  // Update all messages including the system message
                     })
                     .catch(error => console.error('Error sending message:', error));
                 this.newMessage = ''; // clear message input after sending
             }
         }
+
     },
     mounted() {
         this.fetchMessages();
@@ -58,4 +59,8 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.system-message {
+    background-color: #f0f0f0;
+}
+</style>

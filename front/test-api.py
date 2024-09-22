@@ -15,20 +15,30 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
-# Message model using Pydantic for data validation
 class Message(BaseModel):
     id: Optional[str] = None
     text: str
+    author: Optional[str] = "user"
 
-# In-memory storage for messages
 messages: List[Message] = []
 
 @app.get("/messages/", response_model=List[Message])
 async def get_messages():
     return messages
 
-@app.post("/send/", response_model=Message)
+@app.post("/send/", response_model=List[Message])
 async def send_message(message: Message):
-    message.id = str(uuid.uuid4())  # Assign a unique ID to each message
+    # Assign unique ID to user message
+    message.id = str(uuid.uuid4())
     messages.append(message)
-    return message
+
+    # Create and append system message
+    system_message = Message(
+        id=str(uuid.uuid4()),
+        text="Hello World",
+        author="system"
+    )
+    messages.append(system_message)
+
+    # Return the updated list of messages
+    return messages
