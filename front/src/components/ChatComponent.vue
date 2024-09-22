@@ -43,7 +43,7 @@ export default {
         sendMessage() {
             if (this.newMessage) {
                 // TODO: API call to send this.newMessage
-                axios.post('http://127.0.0.1:8000/send', { text: this.newMessage })
+                axios.post('http://localhost:8000/send/', { text: this.newMessage })
                     .then(response => {
                         this.messages.push(response.data);  // Assuming the API returns the sent message
                     })

@@ -1,18 +1,23 @@
-"""
-This is just a test API to validate Vue.js frontend.
-
-TODO: Remove this once we have a proper testing API.
-"""
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
 import uuid
 
 app = FastAPI()
 
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:8080"],  # Specifies the allowed origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
+
 # Message model using Pydantic for data validation
 class Message(BaseModel):
-    id: Optional[str]
+    id: Optional[str] = None
     text: str
 
 # In-memory storage for messages
