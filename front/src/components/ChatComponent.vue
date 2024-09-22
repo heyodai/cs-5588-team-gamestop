@@ -6,7 +6,7 @@
                     <v-list>
                         <v-list-item-group v-model="selectedItem">
                             <v-list-item v-for="message in messages" :key="message.id"
-                                :class="{ 'system-message': message.author === 'system' }">
+                                :class="{ 'assistant-message': message.author === 'assistant' }">
                                 <v-list-item-content>
                                     <v-list-item-title>{{ message.text }}</v-list-item-title>
                                 </v-list-item-content>
@@ -45,7 +45,7 @@ export default {
             if (this.newMessage) {
                 axios.post('http://localhost:8000/send/', { text: this.newMessage, author: 'user' })
                     .then(response => {
-                        this.messages = response.data;  // Update all messages including the system message
+                        this.messages = response.data;  // Update all messages including the assistant message
                     })
                     .catch(error => console.error('Error sending message:', error));
                 this.newMessage = ''; // clear message input after sending
@@ -60,7 +60,7 @@ export default {
 </script>
 
 <style scoped>
-.system-message {
+.assistant-message {
     background-color: #f0f0f0;
 }
 </style>

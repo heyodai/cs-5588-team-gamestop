@@ -57,6 +57,7 @@ nbformat==5.10.4
 nest-asyncio==1.6.0
 notebook==7.2.2
 notebook_shim==0.2.4
+ollama==0.3.3
 overrides==7.7.0
 packaging==24.1
 pandocfilters==1.5.1
