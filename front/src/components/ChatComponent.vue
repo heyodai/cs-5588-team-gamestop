@@ -1,0 +1,74 @@
+<template>
+    <v-container>
+        <v-row>
+            <v-col cols="12">
+                <v-card>
+                    <v-list>
+                        <v-list-item-group v-model="selectedItem">
+                            <v-list-item v-for="message in messages" :key="message.id"
+                                :class="{ 'assistant-message': message.author === 'assistant' }">
+                                <v-list-item-content>
+                                    <v-list-item-title class="wrapped-text">{{ message.text }}</v-list-item-title>
+                                </v-list-item-content>
+                            </v-list-item>
+                        </v-list-item-group>
+                    </v-list>
+                </v-card>
+                <v-text-field label="Type a message..." v-model="newMessage" :rules="[rules.required]"
+                    append-icon="mdi-send" @click:append="sendMessage"></v-text-field>
+            </v-col>
+        </v-row>
+    </v-container>
+</template>
+
+<script>
+import axios from 'axios';
+export default {
+    data: () => ({
+        messages: [],
+        newMessage: '',
+        selectedItem: null,
+        rules: {
+            required: value => !!value || 'Required.',
+        },
+    }),
+    methods: {
+        fetchMessages() {
+            // TODO: API call to fetch messages
+            axios.get('http://localhost:8000/messages')
+                .then(response => {
+                    this.messages = response.data;
+                })
+                .catch(error => console.error('Error fetching messages:', error));
+        },
+        sendMessage() {
+            if (this.newMessage) {
+                axios.post('http://localhost:8000/send/', { text: this.newMessage, author: 'user' })
+                    .then(response => {
+                        this.messages = response.data;  // Update all messages including the assistant message
+                    })
+                    .catch(error => console.error('Error sending message:', error));
+                this.newMessage = ''; // clear message input after sending
+            }
+        }
+
+    },
+    mounted() {
+        this.fetchMessages();
+    }
+}
+</script>
+
+<style scoped>
+.assistant-message {
+    background-color: #f0f0f0;
+}
+.wrapped-text {
+    word-wrap: break-word; /* Ensures text wraps */
+    white-space: normal;   /* Allows text to move to the next line */
+}
+.v-list-item {
+    min-height: auto; /* Allows item to expand with content */
+    overflow-y: auto; /* Adds scroll on Y-axis if needed */
+}
+</style>
