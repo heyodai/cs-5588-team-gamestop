@@ -13,3 +13,19 @@
 7. Devin - Product Architect - https://github.com/devin-cline
    -
    Explored alternate preprocessing steps and modeling through the use of a temporal GNN. This approach promised great performance in in handeling time series data. Worked though a ton of issues and data preprocessing in order to have a df that can be taken though a temporal GNN.
+
+
+## Peer Evaluation
+
+1. Odai
+   - 
+   my team has been working very well together, I feel like we're all meshing really well and giving each other a whole bunch of ideas that otherwise we wouldn't have came up with. there's a lot of work to be done still in order to integrate all the technologies, but I feel like with this team we will be able to do that without a problem. If I had to give criticism I feel like if we could have a few more meetings throughout the week just establish where we're at would be nice.
+2. Devin
+   - 
+   Everything has been great so far, I'm more of a fan of establishing what is needed from the beginning and working to that throughout the semester instead of having to meet 100 multiple times to get on the same page. we have a great team that has a diverse background and machine learning, and that really allows us to utilize every group member and every single portion of this. I'm happy with the direction that we're going.
+3. Semir
+   - 
+   Team has been really great to work with so far, having worked with Devon and Odai in the past it was really simple to just pick up where we left off, not literally this is a different project but figuratively. we have a great sense of direction but we have to make sure we stay on top of it in order to fulfill our promises on this massive undertaking. 
+4. Nami
+   - 
+   i've enjoyed my time with the group and everyone in it, it took us a little bit in order to figure out exactly what direction we wanted to go in, but once we figured out, we were all able to work together pretty well in order to accomplish that first milestone of the project. There's a lot of work left to do not a ton of time so as a group, we're gonna have to ensure that we're on top of it.
