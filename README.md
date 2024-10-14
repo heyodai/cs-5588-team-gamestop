@@ -25,14 +25,14 @@ We're using the datasets from the [LLMFactor](https://arxiv.org/abs/2406.10811) 
 ## Team Members
      
 1. **Odai Athamneh**
-    - Role: ML engineer
+    - Role: ML engineer / UI developer
     - GitHub: [https://github.com/heyodai](https://github.com/heyodai) 
 2. **Devin Cline**
-    - Role: Product architect
+    - Role: Product architect/ Data engineer
     - GitHub: [https://github.com/devin-cline](https://github.com/devin-cline) 
 3. **Semir Hot**
-    - Role: Team leader
+    - Role: Project manager / Full stack developer
     - GitHub: [https://github.com/SemirHot](https://github.com/SemirHot) 
 4. **Namuun Lkhagvadorj**
-    - Role: Financial analyst
+    - Role: Financial analyst / Data scientist
     - GitHub:[https://github.com/Nami1217](https://github.com/Nami1217)
