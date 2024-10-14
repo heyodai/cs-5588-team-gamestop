@@ -4,6 +4,10 @@ Please ensure you read on how to contribute to this repo under the `/.github` fo
 
 ## Table of Contents
 
+- [Project Description](#project-description)
+- [Datasets](#datasets)
+- [Team Members](#team-members)
+
 ## Project Description
 
 In today's digital age, where information is abundant and easily accessible, financial markets have grown increasingly interconnected and complex. Traditional financial analysis methods often struggle to fully capture this intricate market behavior, highlighting the need for a more advanced, multidimensional approach. 
