@@ -1,68 +1,92 @@
 import streamlit as st
-import requests
-from datetime import datetime, timedelta
 import pandas as pd
+import matplotlib.pyplot as plt
 
-# Streamlit page configuration
-st.set_page_config(page_title="Stock Data Viewer", layout="wide")
+# Load the data and ensure the date column is in datetime format
+data = {
+    'date': ['2018-01-02', '2018-01-03', '2018-01-04', '2018-01-05', '2018-01-08'],
+    'price': [42.54, 43.13, 43.13, 43.36, 43.59],
+    'action': ['HOLD', 'SELL', 'BUY', 'HOLD', 'BUY'],
+    'volume': [0, 50, 5, 0, 20],
+    'value': [1000, 5313.25, 5313.37, 5313.37, 5338.26],
+    'holdings': [100, 50, 55, 55, 75],
+    'funds': [1000, 3156.625, 2940.95001, 2940.95001, 2069.19997],
+    'reason': [
+        "High portfolio risk tolerance and current market trends suggest selling AAPL...",
+        "Despite a strong start to the year, there is no clear indication...",
+        "The disclosed security flaws, particularly the 'Meltdown' bug...",
+        "No new action",
+        "Despite increasing competition from Google and Samsung..."
+    ]
+}
 
-# Title
-st.title("Stock Data Viewer")
+df = pd.DataFrame(data)
 
-# Sidebar for input
-st.sidebar.header("Input Options")
-ticker = st.sidebar.text_input("Ticker", value="AAPL").upper()
-input_date = st.sidebar.date_input("Date", value=datetime(2018, 1, 2))
-increment = st.sidebar.selectbox("Change Date By:", options=["Previous Day", "Next Day"])
+# Convert 'date' column to datetime format
+df['date'] = pd.to_datetime(df['date'])
 
-# Function to handle date incrementing
-def increment_date(date, change):
-    if change == "Previous Day":
-        return date - timedelta(days=1)
-    elif change == "Next Day":
-        return date + timedelta(days=1)
-    return date
+# Set page configuration
+st.set_page_config(page_title="Stock Trading Simulation", layout="wide")
 
-# Increment or decrement the date based on selection
-if st.sidebar.button("Apply Date Change"):
-    input_date = increment_date(input_date, increment)
+# Title and description
+st.title("📈 Stock Trading Simulation Dashboard")
+st.write("This dashboard shows a day-by-day simulation of a stock trading portfolio based on market conditions, price movements, and decisions.")
 
-# Convert date to string for the API request
-date_str = input_date.strftime("%Y-%m-%d")
+# Sidebar for navigation
+st.sidebar.title("Navigation")
 
-# Function to fetch data from FastAPI
-def fetch_data(ticker, date):
-    url = f"http://localhost:8000/{ticker}/{date}"
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.HTTPError as http_err:
-        st.error(f"HTTP error occurred: {http_err}")
-    except Exception as err:
-        st.error(f"An error occurred: {err}")
+# Date range filter
+st.sidebar.subheader("Filter by Date Range")
+start_date = st.sidebar.date_input("Start date", df['date'].min())
+end_date = st.sidebar.date_input("End date", df['date'].max())
 
-# Fetching and displaying the data
-data = fetch_data(ticker, date_str)
+# Filter the dataframe based on the date range
+if start_date > end_date:
+    st.error("Error: End date must be after start date.")
+else:
+    filtered_df = df[(df['date'] >= pd.to_datetime(start_date)) & (df['date'] <= pd.to_datetime(end_date))]
 
-if data:
-    st.write("## Price Data")
-    if data["prices"]:
-        st.json(data["prices"])
-    else:
-        st.write("No price data available for this date.")
+    # Display filtered data
+    st.write(f"Showing data from **{start_date}** to **{end_date}**")
 
-    st.write("## News")
-    if data["news"]:
-        for news_item in data["news"]:
-            st.write(f"#### {news_item['title']}")
-            st.write(news_item['summary'])
-    else:
-        st.write("No news data available for this date.")
+    # Select a date from the filtered date range
+    selected_date = st.sidebar.selectbox("Select a date", filtered_df['date'].dt.strftime('%Y-%m-%d'))
 
-# Reminder to run the FastAPI locally
-st.sidebar.markdown(
-    """
-    Ensure that the FastAPI server is running locally on port 8000 for this app to function properly.
-    """
-)
+    # Display the details for the selected day
+    st.subheader(f"Details for {selected_date}")
+    selected_row = filtered_df[filtered_df['date'] == pd.to_datetime(selected_date)]
+
+    # Use columns for a clean layout
+    col1, col2, col3 = st.columns(3)
+
+    col1.metric(label="Action", value=selected_row['action'].values[0])
+    col2.metric(label="Price", value=f"${selected_row['price'].values[0]:,.2f}")
+    col3.metric(label="Volume", value=selected_row['volume'].values[0])
+
+    st.write(f"**Reason for Action:** {selected_row['reason'].values[0]}")
+
+    # Chart: Holdings over time
+    st.subheader("📊 Holdings Over Time")
+
+    fig, ax = plt.subplots()
+    ax.plot(filtered_df['date'], filtered_df['holdings'], marker='o', linestyle='-', color='blue')
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Holdings")
+    ax.set_title("Holdings Over Time")
+    ax.grid(True)
+
+    # Display the chart
+    st.pyplot(fig)
+
+    # Chart: Funds over time
+    st.subheader("💰 Funds Over Time")
+
+    fig, ax = plt.subplots()
+    ax.plot(filtered_df['date'], filtered_df['funds'], marker='o', linestyle='-', color='green')
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Funds")
+    ax.set_title("Funds Over Time")
+    ax.grid(True)
+
+    # Display the chart
+    st.pyplot(fig)
