@@ -36,7 +36,8 @@ def main():
         risk = st.selectbox("Risk Tolerance", ["LOW", "MEDIUM", "HIGH"])
 
     # Initialize the Portfolio
-    p = Portfolio(ticker=ticker, funds=funds, holdings=100, risk=risk)
+    start_data = requests.get(f"http://localhost:8000/{ticker}/{start_date}").json()
+    p = Portfolio(ticker=ticker, funds=funds, holdings=100, risk=risk, price=start_data["prices"][0]["open"])
 
     # Dates range for simulation
     dates = pd.date_range(start=start_date, end=end_date).strftime("%Y-%m-%d")
@@ -65,8 +66,7 @@ def main():
             continue
 
         news_data = ""
-        data = requests.get(f"http://localhost:8000/{ticker}/{date}")
-        data = data.json()
+        data = requests.get(f"http://localhost:8000/{ticker}/{date}").json()
 
         for news in data["news"]:
             news_data += f"""
@@ -164,9 +164,26 @@ def update_chart(df, placeholder):
 # Function to update reasoning log
 def update_reasoning(df, placeholder):
     reasoning_log = ""
-    for _, row in df.iterrows():
-        reasoning_log += f"### {row['date']}\n\n{row['reason']}\n\n---\n"
 
+    # Reverse the DataFrame to display the newest days first
+    df_reversed = df.iloc[::-1]
+
+    for _, row in df_reversed.iterrows():
+        reasoning_log += f"### {row['date']}\n\n"
+        reasoning_log += f"{row['reason']}\n\n"
+
+        # Add a bullet-point list with key info for that day
+        reasoning_log += f"- **Price**: {row['price']}\n"
+        reasoning_log += f"- **Action**: {row['action']}\n"
+        reasoning_log += f"- **Volume**: {row['volume']}\n"
+        reasoning_log += f"- **Value**: {row['value']}\n"
+        reasoning_log += f"- **Holdings**: {row['holdings']}\n"
+        reasoning_log += f"- **Funds**: {row['funds']}\n"
+
+        # Add a horizontal separator
+        reasoning_log += "---\n"
+
+    # Display the formatted reasoning log using Markdown
     placeholder.markdown(reasoning_log)
 
 
@@ -200,11 +217,11 @@ def load_factors(ticker, date):
 
 # Portfolio class definition
 class Portfolio:
-    def __init__(self, ticker, funds, holdings, risk):
+    def __init__(self, ticker, funds, holdings, risk, price):
         self.ticker = ticker
         self.funds = funds
         self.holdings = holdings
-        self.value = funds
+        self.value = funds + holdings * price
         self.risk = risk
 
     def buy(self, amount, price):
