@@ -160,17 +160,38 @@ def generate_prompt(p, factors, date):
     """
 
 
-# Function to update chart
+# Function to update chart with horizontal plots and theme adjustment for dark mode
 def update_chart(df, placeholder):
-    fig, ax = plt.subplots()
-    ax.plot(df["date"], df["funds"], label="Funds", color="blue")
-    ax.plot(df["date"], df["holdings"], label="Holdings", color="green")
-    ax.plot(df["date"], df["value"], label="Portfolio Value", color="orange")
-    ax.set_xlabel("Date")
-    ax.set_ylabel("Value ($)")
-    ax.legend()
-    ax.set_title("Portfolio Over Time")
-    plt.xticks(rotation=45)
+    # Set the color scheme based on the system theme (assuming dark mode detection is manual or through Streamlit)
+    if st.get_option("theme.primaryColor") == "#000000":  # Replace with the actual dark mode detection
+        plt.style.use("dark_background")
+    else:
+        plt.style.use("default")
+
+    fig, ax = plt.subplots(1, 3, figsize=(18, 6))  # Create a 1-row, 3-column layout for horizontal charts
+
+    # First chart: Funds over time
+    ax[0].plot(df["date"], df["funds"], color="cyan")
+    ax[0].set_xlabel("Date")
+    ax[0].set_ylabel("Funds ($)")
+    ax[0].set_title("Funds Over Time")
+    ax[0].tick_params(axis="x", rotation=45)  # Rotate x-axis labels for readability
+
+    # Second chart: Holdings over time
+    ax[1].plot(df["date"], df["holdings"], color="lime")
+    ax[1].set_xlabel("Date")
+    ax[1].set_ylabel("Holdings (Shares)")
+    ax[1].set_title("Holdings Over Time")
+    ax[1].tick_params(axis="x", rotation=45)  # Rotate x-axis labels for readability
+
+    # Third chart: Portfolio Value over time
+    ax[2].plot(df["date"], df["value"], color="orange")
+    ax[2].set_xlabel("Date")
+    ax[2].set_ylabel("Portfolio Value ($)")
+    ax[2].set_title("Portfolio Value Over Time")
+    ax[2].tick_params(axis="x", rotation=45)  # Rotate x-axis labels for readability
+
+    plt.tight_layout()  # Adjust layout to prevent overlap
     placeholder.pyplot(fig)
 
 
