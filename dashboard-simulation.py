@@ -31,9 +31,7 @@ def main():
             min_value=pd.to_datetime("2018-01-01"),
             max_value=pd.to_datetime("2020-01-01"),
         )
-        model = st.selectbox(
-            "Model", ["llama3.2:3b", "llama3.2:7b", "llama3.2:13b"]
-        )
+        model = "llama3.2:3b" # This could be an option in the future
         ticker = st.selectbox("Ticker", ["AAPL", "AMZN", "MSFT", "NVDA"])
         funds = st.number_input("Starting Funds", min_value=100, value=1000, step=100)
         risk = st.selectbox("Risk Tolerance", ["LOW", "MEDIUM", "HIGH"])
