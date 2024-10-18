@@ -38,7 +38,6 @@ def main():
 
     # Initialize the Portfolio
     start_data = requests.get(f"http://localhost:8000/{ticker}/2018-01-02").json() # TODO: make date dynamic
-    print(start_data)
     p = Portfolio(ticker=ticker, funds=funds, holdings=100, risk=risk, price=start_data["prices"][0]["open"])
 
     # Dates range for simulation
@@ -87,6 +86,7 @@ def main():
 
         try:
             response_data = json.loads(response)
+            
             action = response_data["action"].lower()
             volume = int(response_data["volume"]) if "volume" in response_data else 0
             reason = response_data["reason"] if "reason" in response_data else ""
@@ -97,14 +97,15 @@ def main():
 
         price = data["prices"][0]["open"]
 
-        if action == "buy" and volume > 0:
+        if action == "buy": #and volume > 0:
             p.buy(volume, price)
             action_desc = "BUY"
-        elif action == "sell" and volume > 0:
+        # elif action == "sell" and volume > 0:
+        else:
             p.sell(volume, price)
             action_desc = "SELL"
-        else:
-            action_desc = "HOLD"
+        # else:
+        #     action_desc = "HOLD"
 
         new_row = pd.DataFrame(
             {
@@ -160,26 +161,22 @@ def generate_prompt(p, factors, date):
 
 # Function to update chart with horizontal plots and theme adjustment for dark mode
 def update_chart(df, placeholder):
-    # Set the color scheme based on the system theme (assuming dark mode detection is manual or through Streamlit)
-    # dark_background = "#262730"
+    # Set the color scheme
     dark_background = "#0E1117"
-    plt.style.use("default")
+    plt.style.use("default")  # Start with the default style, then modify
     plt.rcParams.update({
-            "axes.facecolor": dark_background,  # Background of the plot area
-            "figure.facecolor": dark_background,  # Background of the entire figure
-            "axes.edgecolor": "white",  # Color of the axes lines
-            "xtick.color": "white",  # Color of x-axis tick labels
-            "ytick.color": "white",  # Color of y-axis tick labels
-            "axes.labelcolor": "white",  # Color of x and y axis labels
-            "text.color": "white",  # Color of the title and text in the chart
-            "legend.facecolor": dark_background,  # Legend background color
-        })
-    # if st.get_option("theme.primaryColor") == "#000000":  # Replace with the actual dark mode detection
-    #     plt.style.use("dark_background")
-    # else:
-    #     plt.style.use("default")
+        "axes.facecolor": dark_background,  # Background of the plot area
+        "figure.facecolor": dark_background,  # Background of the entire figure
+        "axes.edgecolor": "white",  # Color of the axes lines
+        "xtick.color": "white",  # Color of x-axis tick labels
+        "ytick.color": "white",  # Color of y-axis tick labels
+        "axes.labelcolor": "white",  # Color of x and y axis labels
+        "text.color": "white",  # Color of the title and text in the chart
+        "legend.facecolor": dark_background,  # Legend background color
+    })
 
-    fig, ax = plt.subplots(1, 3, figsize=(18, 6))  # Create a 1-row, 3-column layout for horizontal charts
+    # Create a 1-row, 3-column layout for horizontal charts
+    fig, ax = plt.subplots(1, 3, figsize=(18, 6))
 
     # First chart: Funds over time
     ax[0].plot(df["date"], df["funds"], color="cyan")
