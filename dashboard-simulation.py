@@ -7,10 +7,13 @@ import time
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 
-
 # Streamlit app definition
 def main():
     st.title("📈🚀 MarketPulse")
+
+    # Initialize progress bar and message holder at the top
+    progress_bar = st.empty()
+    success_placeholder = st.empty()
 
     # Sidebar for user input
     with st.sidebar:
@@ -30,13 +33,14 @@ def main():
         )
         model = st.selectbox(
             "Model", ["llama3.2:3b", "llama3.2:7b", "llama3.2:13b"]
-        )  # TODO: Change models
+        )
         ticker = st.selectbox("Ticker", ["AAPL", "AMZN", "MSFT", "NVDA"])
         funds = st.number_input("Starting Funds", min_value=100, value=1000, step=100)
         risk = st.selectbox("Risk Tolerance", ["LOW", "MEDIUM", "HIGH"])
 
     # Initialize the Portfolio
-    start_data = requests.get(f"http://localhost:8000/{ticker}/{start_date}").json()
+    start_data = requests.get(f"http://localhost:8000/{ticker}/2018-01-02").json() # TODO: make date dynamic
+    print(start_data)
     p = Portfolio(ticker=ticker, funds=funds, holdings=100, risk=risk, price=start_data["prices"][0]["open"])
 
     # Dates range for simulation
@@ -60,8 +64,12 @@ def main():
     chart_placeholder = st.empty()
     reasoning_placeholder = st.empty()
 
+    # Progress bar setup
+    progress = progress_bar.progress(0)
+    total_steps = len(dates)
+
     # Simulation loop
-    for date in tqdm(dates):
+    for step, date in enumerate(dates):
         if not was_market_open(date):
             continue
 
@@ -119,10 +127,15 @@ def main():
         update_chart(df, chart_placeholder)
         update_reasoning(df, reasoning_placeholder)
 
+        # Update the progress bar
+        progress.progress((step + 1) / total_steps)
+
     # Save the results to a CSV file at the end of the simulation
     epoch = int(time.time())
     df.to_csv(f"{ticker}-{model}-{risk}-{epoch}.csv", index=False)
-    st.success("🤑 Simulation completed!")
+
+    # Display the success message at the top
+    success_placeholder.success("🤑 Simulation completed!")
 
 
 # Function to generate prompt for model
