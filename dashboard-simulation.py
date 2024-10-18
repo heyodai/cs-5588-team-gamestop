@@ -161,10 +161,23 @@ def generate_prompt(p, factors, date):
 # Function to update chart with horizontal plots and theme adjustment for dark mode
 def update_chart(df, placeholder):
     # Set the color scheme based on the system theme (assuming dark mode detection is manual or through Streamlit)
-    if st.get_option("theme.primaryColor") == "#000000":  # Replace with the actual dark mode detection
-        plt.style.use("dark_background")
-    else:
-        plt.style.use("default")
+    # dark_background = "#262730"
+    dark_background = "#0E1117"
+    plt.style.use("default")
+    plt.rcParams.update({
+            "axes.facecolor": dark_background,  # Background of the plot area
+            "figure.facecolor": dark_background,  # Background of the entire figure
+            "axes.edgecolor": "white",  # Color of the axes lines
+            "xtick.color": "white",  # Color of x-axis tick labels
+            "ytick.color": "white",  # Color of y-axis tick labels
+            "axes.labelcolor": "white",  # Color of x and y axis labels
+            "text.color": "white",  # Color of the title and text in the chart
+            "legend.facecolor": dark_background,  # Legend background color
+        })
+    # if st.get_option("theme.primaryColor") == "#000000":  # Replace with the actual dark mode detection
+    #     plt.style.use("dark_background")
+    # else:
+    #     plt.style.use("default")
 
     fig, ax = plt.subplots(1, 3, figsize=(18, 6))  # Create a 1-row, 3-column layout for horizontal charts
 
