@@ -6,6 +6,7 @@ import json
 import time
 from tqdm import tqdm
 import matplotlib.pyplot as plt
+import numpy as np
 
 # Streamlit app definition
 def main():
@@ -97,15 +98,12 @@ def main():
 
         price = data["prices"][0]["open"]
 
-        if action == "buy": #and volume > 0:
+        if action == "buy":
             p.buy(volume, price)
             action_desc = "BUY"
-        # elif action == "sell" and volume > 0:
         else:
             p.sell(volume, price)
             action_desc = "SELL"
-        # else:
-        #     action_desc = "HOLD"
 
         new_row = pd.DataFrame(
             {
@@ -130,17 +128,36 @@ def main():
         progress.progress((step + 1) / total_steps)
 
     # Save the results to a CSV file at the end of the simulation
-    epoch = int(time.time())
-    df.to_csv(f"{ticker}-{model}-{risk}-{epoch}.csv", index=False)
+    # epoch = int(time.time())
+    # df.to_csv(f"{ticker}-{model}-{risk}-{epoch}.csv", index=False)
 
     # Display the success message at the top
     success_placeholder.success("🤑 Simulation completed!")
 
+def pseudo_lstm(ticker, date):
+    # TODO: Implement a real LSTM model
+    
+    # Open the CSV file and read the data
+    data_fp = "/Users/odai/datasets/CMIN/CMIN-US/price/raw" # TODO: make this dynamic
+    df = pd.read_csv(f"{data_fp}/{ticker}.csv")
+    
+    # Find the row for the given date
+    row = df[df["Date"] == date]
+    row_idx = row.index[0]
+    
+    # Get the opening price for the next day
+    next_row = df.iloc[row_idx + 1]
+    prediction =  round(next_row['Open'], 2)
+    
+    # Randomly add noise to the prediction
+    prediction += round(prediction * (0.01 * (2 * np.random.random() - 1)), 2)
+    return prediction
 
 # Function to generate prompt for model
 def generate_prompt(p, factors, date):
+    lstm = pseudo_lstm(p.ticker, date)
     return f"""
-        Today is {date} and you have {p.funds} to invest in {p.ticker}. You currently have {p.holdings} shares of {p.ticker} valued at {p.value}. Your portfolio risk tolerance is {p.risk}.
+        Today is {date} and you have {p.funds} to invest in {p.ticker}. You currently have {p.holdings} shares of {p.ticker} valued at {p.value}. Your portfolio risk tolerance is {p.risk}. Your LSTM model predicts that the opening price of {p.ticker} tomorrow will be {lstm}.
 
         The following are the top factors that may affect the stock price of {p.ticker} today:
 
