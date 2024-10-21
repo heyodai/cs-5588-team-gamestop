@@ -9,6 +9,7 @@ CMIN_FP = f"{DATA_FP}/CMIN/CMIN-US/news/raw"
 
 app = FastAPI()
 
+
 # %%
 def get_news(ticker: str, date: str):
     # Load and process the data
@@ -22,6 +23,7 @@ def get_news(ticker: str, date: str):
         news_json.append({"title": rows["title"], "summary": rows["summary"]})
 
     return news_json
+
 
 # %%
 def get_prices(ticker: str, date: str):
@@ -45,16 +47,15 @@ def get_prices(ticker: str, date: str):
 
     return prices_json
 
+
 # %%
 @app.get("/{ticker}/{date}")
 async def get_data(ticker: str, date: str):
     news = get_news(ticker, date)
     prices = get_prices(ticker, date)
-    
+
     # Check if the market was closed on this day
     if not prices:
         raise HTTPException(status_code=403, detail="Market was closed on this day")
 
     return {"ticker": ticker, "date": date, "news": news, "prices": prices}
-
-
