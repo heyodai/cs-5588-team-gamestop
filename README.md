@@ -7,6 +7,7 @@ Please ensure you read on how to contribute to this repo under the `/.github` fo
 - [Project Description](#project-description)
 - [Datasets](#datasets)
 - [Team Members](#team-members)
+- [Running the Simulation](#running-the-simulation)
 
 ## Project Description
 
@@ -36,3 +37,21 @@ We're using the datasets from the [LLMFactor](https://arxiv.org/abs/2406.10811) 
 4. **Namuun Lkhagvadorj**
     - Role: Financial analyst / Data scientist
     - GitHub:[https://github.com/Nami1217](https://github.com/Nami1217)
+
+## Running the Simulation
+
+The steps below detail how to run the simulation. We do have [a ticket](https://github.com/heyodai/cs-5588-team-gamestop/issues/47) to simplify this process in the future.
+
+Steps:
+
+1. Clone the repository
+2. Create Python virtual environment:
+    ```bash
+    python3 -m venv .venv   
+    source .venv/bin/activate
+    pip install -r requirements.txt
+    ```
+3. Run a local Ollama server in your terminal: `ollama run llama3.2:3b`
+4. Run the FastAPI which serves the dataset: `uvicorn api:app --reload`
+5. Run the Streamlit interface: `streamlit run dashboard.py`
+6. Open the browser and navigate to `http://localhost:8501/`
