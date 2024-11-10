@@ -33,7 +33,7 @@ def main():
             max_value=pd.to_datetime("2020-01-01"),
         )
         model = "llama3.2:3b" # This could be an option in the future
-        ticker = st.selectbox("Ticker", ["AAPL", "AMZN", "MSFT", "NVDA"])
+        tickers = st.multiselect("Tickers", ["AAPL", "AMZN", "MSFT", "NVDA"], default=["AAPL"])
         funds = st.number_input("Starting Funds", min_value=100, value=1000, step=100)
         risk = st.selectbox("Risk Tolerance", ["LOW", "MEDIUM", "HIGH"])
 
@@ -71,60 +71,59 @@ def main():
         if not was_market_open(date):
             continue
 
-        news_data = ""
-        data = requests.get(f"http://localhost:8000/{ticker}/{date}").json()
+        # Fetch news and factors once per date if applicable
 
-        for news in data["news"]:
-            news_data += f"""
-                ### {news["title"]}
-                
-                {news["summary"]}
-            """
+        for ticker in tickers:
+            # Fetch data for the current ticker
+            data = requests.get(f"http://localhost:8000/{ticker}/{date}").json()
+            price = data["prices"][0]["open"]
+            p.prices[ticker] = price
 
-        factors = load_factors(p.ticker, date)
-        prompt = generate_prompt(p, factors, date)
-        response = query_ollama(prompt, model)
+            # Load factors specific to the ticker
+            factors = load_factors(ticker, date)
 
-        try:
-            response_data = json.loads(response)
-            
-            action = response_data["action"].lower()
-            volume = int(response_data["volume"]) if "volume" in response_data else 0
-            reason = response_data["reason"] if "reason" in response_data else ""
-        except:
-            action = "hold"
-            volume = 0
-            reason = ""
+            # Generate prompt for the ticker
+            prompt = generate_prompt(p, factors, date, ticker)
 
-        price = data["prices"][0]["open"]
+            # Query the language model
+            response = query_ollama(prompt, model)
 
-        if action == "buy":
-            p.buy(volume, price)
-            action_desc = "BUY"
-        else:
-            p.sell(volume, price)
-            action_desc = "SELL"
+            # Parse the response and perform actions
+            response = json.loads(response)
+            action = response["action"].lower()
+            volume = response["volume"]
+            reason = response["reason"]
 
-        new_row = pd.DataFrame(
-            {
-                "date": date,
-                "price": round(price, 2),
-                "action": action_desc,
-                "volume": volume if action in ["buy", "sell"] else 0,
-                "value": round(p.value, 2),
-                "holdings": p.holdings,
-                "funds": round(p.funds, 2),
-                "reason": reason,
-            },
-            index=[0],
-        )
-        df = pd.concat([df, new_row], ignore_index=True)
+            # Update portfolio based on action
+            if action == "buy":
+                p.buy(ticker, volume, price)
+                action_desc = "BUY"
+            else:
+                p.sell(ticker, volume, price)
+                action_desc = "SELL"
 
-        # Update chart and reasoning in real time
+            # Record the transaction in the DataFrame
+            new_row = pd.DataFrame(
+                {
+                    "date": date,
+                    "ticker": ticker,
+                    "price": round(price, 2),
+                    "action": action_desc,
+                    "volume": volume if action in ["buy", "sell"] else 0,
+                    "value": round(p.value, 2),
+                    "holdings": p.holdings[ticker],
+                    "funds": round(p.funds, 2),
+                    "reason": reason,
+                },
+                index=[0],
+            )
+            df = pd.concat([df, new_row], ignore_index=True)
+
+        # Update chart and reasoning
         update_chart(df, chart_placeholder)
         update_reasoning(df, reasoning_placeholder)
 
-        # Update the progress bar
+        # Update progress bar
         progress.progress((step + 1) / total_steps)
 
     # Save the results to a CSV file at the end of the simulation
@@ -154,19 +153,25 @@ def pseudo_lstm(ticker, date):
     return prediction
 
 # Function to generate prompt for model
-def generate_prompt(p, factors, date):
-    lstm = pseudo_lstm(p.ticker, date)
+def generate_prompt(p, factors, date, ticker):
+    lstm = pseudo_lstm(ticker, date)
+    holdings_info = "\n".join([f"{t}: {p.holdings[t]} shares at ${p.prices[t]}" for t in p.tickers])
     return f"""
-        Today is {date} and you have {p.funds} to invest in {p.ticker}. You currently have {p.holdings} shares of {p.ticker} valued at {p.value}. Your portfolio risk tolerance is {p.risk}. Your LSTM model predicts that the opening price of {p.ticker} tomorrow will be {lstm}.
+        Today is {date} and you have ${p.funds} to invest. Your portfolio includes:
+        {holdings_info}
+        Your portfolio risk tolerance is {p.risk}.
 
-        The following are the top factors that may affect the stock price of {p.ticker} today:
+        For {ticker}, you have {p.holdings[ticker]} shares valued at ${p.prices[ticker]}.
+        Your LSTM model predicts that the opening price of {ticker} tomorrow will be ${lstm}.
+
+        The following are the top factors that may affect the stock price of {ticker} today:
 
         {factors}
 
-        Please decide whether to buy or sell your shares of {p.ticker} for tomorrow. Please make sure not to buy more shares than you can afford or sell more shares than you own.
-        
+        Please decide whether to buy or sell shares of {ticker} for tomorrow. Make sure not to buy more shares than you can afford or sell more shares than you own.
+
         Do NOT hold. You MUST buy or sell shares.
-        
+
         Please reply in structured JSON, like so:
         {{
             "action": "buy",
@@ -276,27 +281,28 @@ def load_factors(ticker, date):
 
 # Portfolio class definition
 class Portfolio:
-    def __init__(self, ticker, funds, holdings, risk, price):
-        self.ticker = ticker
+    def __init__(self, tickers, funds, holdings, risk, prices):
+        self.tickers = tickers
         self.funds = funds
-        self.holdings = holdings
-        self.value = funds + holdings * price
+        self.holdings = {ticker: holdings for ticker in tickers}
+        self.prices = prices  # Dictionary of current prices per ticker
         self.risk = risk
+        self.value = self.funds + sum(self.holdings[ticker] * self.prices[ticker] for ticker in self.tickers)
 
-    def buy(self, amount, price):
+    def buy(self, ticker, amount, price):
         max_affordable = int(self.funds / price)
         if amount > max_affordable:
             amount = max_affordable
-        self.holdings += amount
+        self.holdings[ticker] += amount
         self.funds -= amount * price
-        self.value = self.funds + self.holdings * price
+        self.value = self.funds + sum(self.holdings[t] * self.prices[t] for t in self.tickers)
 
-    def sell(self, amount, price):
-        if amount > self.holdings:
-            amount = self.holdings
-        self.holdings -= amount
+    def sell(self, ticker, amount, price):
+        if amount > self.holdings[ticker]:
+            amount = self.holdings[ticker]
+        self.holdings[ticker] -= amount
         self.funds += amount * price
-        self.value = self.funds + self.holdings * price
+        self.value = self.funds + sum(self.holdings[t] * self.prices[t] for t in self.tickers)
 
 
 # Run the app
