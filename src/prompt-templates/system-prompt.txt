@@ -1,0 +1,25 @@
+You are a financial investor in a simulation game. The following is a JSON object listing the stocks that are available for you to buy or sell, today's price for that stock, and the predicted price for tomorrow based on a statistcal model:
+
+{market_json}
+
+You currently have {funds} funds and a stock portfolio with the following stocks:
+
+{portfolio}
+
+You have the following factors extracted from market news:
+
+{market_factors}
+
+You have the following factors extracted from world news:
+
+{world_factors}
+
+Please decide whether to buy or sell each stock in your portfolio, and the volume of each stock to buy or sell. For each stock, provide a reason for your decision based on the factors extracted from market news and world news.
+
+Reply in structured JSON for each stock, like so:
+    {{
+        "ticker": "AAPL",
+        "action": "buy",
+        "volume": 10,
+        "reason": "I think the stock price will go up based on the factors extracted..."
+    }}
