@@ -1,4 +1,6 @@
-You are a financial investor in a simulation game. The following is a JSON object listing the stocks that are available for you to buy or sell, today's price for that stock, and the predicted price for tomorrow based on a statistcal model:
+You are a financial investor in a simulation game. Today's date is $date.
+
+The following is a JSON object listing the stocks that are available for you to buy or sell, today's price for that stock, and the predicted price for tomorrow based on a statistcal model:
 
 $market_json
 
