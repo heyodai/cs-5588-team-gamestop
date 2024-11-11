@@ -42,6 +42,14 @@ if start_date > end_date:
     st.error("Error: Start date must be before end date.")
     st.stop()
 
+with st.sidebar:
+    st.header("Simulation Settings")
+    starting_funds = st.number_input("Starting Funds", value=10000)
+    # Update the portfolio funds if changed
+    if starting_funds != STARTING_FUNDS:
+        STARTING_FUNDS = starting_funds
+        portfolio.funds = STARTING_FUNDS
+
 
 # %%
 # Prepare to store portfolio values and decisions
