@@ -10,15 +10,6 @@ from src.portfolio import Portfolio
 from src.llm import LanguageModel
 
 # %%
-# DATASET_FP = "/Users/odai/repos/cs-5588-team-gamestop/datasets/CMIN-US"
-# STARTING_FUNDS = 10_000  # USD
-# LLM_MODEL = "llama3.2:3b"
-
-# START_DATE = "2018-01-01"
-# # END_DATE = "2021-01-01"
-# END_DATE = "2018-01-07"
-
-# %%
 # Constants and configurations
 DATASET_FP = "/Users/odai/repos/cs-5588-team-gamestop/datasets/CMIN-US"
 STARTING_FUNDS = 10_000  # USD
@@ -66,13 +57,13 @@ progress_bar = st.progress(0)
 for idx, date in enumerate(dates):
     date_str = date.strftime("%Y-%m-%d")
     st.subheader(f"Date: {date_str}")
-    
+
     # Get market info
     market_info = market.get_info(date_str)
-    
+
     # Get portfolio makeup
     portfolio_makeup = portfolio.get_makeup()
-    
+
     # Get the prompt for the LLM
     prompt = llm.get_prompt(
         date_str,
@@ -80,16 +71,16 @@ for idx, date in enumerate(dates):
         portfolio.funds,
         portfolio_makeup,
         market_factors=None,  # If you have market factors
-        world_factors=None,   # If you have world factors
+        world_factors=None,  # If you have world factors
     )
-    
+
     # Execute the prompt and get the LLM's decision
     llm_response = llm.execute_prompt(prompt)
     decisions.append((date_str, llm_response))
-    
+
     # Display the LLM's decision
     st.write(f"LLM Decision:\n{llm_response}")
-    
+
     # Parse the LLM's decision and update the portfolio
     try:
         actions = json.loads(llm_response)
@@ -105,19 +96,16 @@ for idx, date in enumerate(dates):
                 st.warning(f"Unknown action type: {action['type']}")
     except Exception as e:
         st.error(f"Error parsing LLM response on {date_str}: {e}")
-    
+
     # Update stock values in the portfolio
     for ticker in portfolio.stocks:
         new_value = market.stocks[ticker].get_price(date_str)
         portfolio.update_stock_value(ticker, new_value)
-    
+
     # Update portfolio value
     total_value = portfolio.get_value()
-    portfolio_values.append({
-        "date": date_str,
-        "value": total_value
-    })
-    
+    portfolio_values.append({"date": date_str, "value": total_value})
+
     # Update progress bar
     progress_bar.progress((idx + 1) / len(dates))
 
@@ -134,10 +122,7 @@ for date_str, decision in decisions:
 st.header("Portfolio Value Over Time")
 
 df_portfolio = pd.DataFrame(portfolio_values)
-df_portfolio['date'] = pd.to_datetime(df_portfolio['date'])
-df_portfolio = df_portfolio.set_index('date')
+df_portfolio["date"] = pd.to_datetime(df_portfolio["date"])
+df_portfolio = df_portfolio.set_index("date")
 
-st.line_chart(df_portfolio['value'])
-
-
-
+st.line_chart(df_portfolio["value"])
