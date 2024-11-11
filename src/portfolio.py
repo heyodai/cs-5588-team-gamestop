@@ -87,11 +87,11 @@ class Portfolio:
 
 
 # %%
-portfolio = Portfolio()
-portfolio.add_funds(1000)
-portfolio.buy_stock("AAPL", 10, 10)
-portfolio.buy_stock("GOOGL", 5, 1200)
+# portfolio = Portfolio()
+# portfolio.add_funds(1000)
+# portfolio.buy_stock("AAPL", 10, 10)
+# portfolio.buy_stock("GOOGL", 5, 1200)
 
-print(portfolio.get_makeup())
+# print(portfolio.get_makeup())
 
 

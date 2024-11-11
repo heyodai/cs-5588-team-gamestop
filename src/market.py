@@ -69,12 +69,12 @@ class MarketStock:
         return news_json
 
 # %%
-path = "/Users/odai/repos/cs-5588-team-gamestop/datasets/CMIN-US"
-date = "2018-01-02"
+# path = "/Users/odai/repos/cs-5588-team-gamestop/datasets/CMIN-US"
+# date = "2018-01-02"
 
-aapl = MarketStock("AAPL", path)
-print(aapl.get_prices(date))
-print(aapl.get_news(date))
+# aapl = MarketStock("AAPL", path)
+# print(aapl.get_prices(date))
+# print(aapl.get_news(date))
 
 # %%
 class Market:
@@ -108,10 +108,10 @@ class Market:
         return stock_info
 
 # %%
-date = "2018-01-02"
-path = "/Users/odai/repos/cs-5588-team-gamestop/datasets/CMIN-US"
+# date = "2018-01-02"
+# path = "/Users/odai/repos/cs-5588-team-gamestop/datasets/CMIN-US"
 
-market = Market(path)
-print(json.dumps(market.get_info(date), indent=4))
+# market = Market(path)
+# print(json.dumps(market.get_info(date), indent=4))
 
 
