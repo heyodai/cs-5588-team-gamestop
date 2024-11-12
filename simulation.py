@@ -33,10 +33,10 @@ st.set_page_config(page_title="LLM Stock Trading Simulation", layout="wide")
 
 # %%
 # Title of the app
-st.title("LLM Stock Trading Simulation")
+st.title("💹 MarketPulse 📈")
 
 with st.sidebar:
-    st.header("Simulation Settings")
+    st.sidebar.header("⚙️ Simulation Settings")
 
     # Date input widgets
     start_date = st.date_input("Start Date", datetime.date(2018, 1, 1))
@@ -68,7 +68,7 @@ progress_bar = st.progress(0)
 for idx, date in enumerate(dates):
     date_str = date.strftime("%Y-%m-%d")
 
-    st.subheader(f"Date: {date_str}")
+    st.subheader(f"📅 Date: {date_str}")
 
     # Check if the market was open on this date
     if date not in market_open_df.index or not market_open_df.loc[date, "was_open"]:
@@ -96,7 +96,7 @@ for idx, date in enumerate(dates):
     decisions.append((date_str, llm_response))
 
     # Display the LLM's decision
-    st.write(f"LLM Decision:\n{llm_response}")
+    st.write("🤖 LLM Decision:\n" + llm_response)
 
     # Parse the LLM's decision and update the portfolio
     try:
@@ -127,7 +127,7 @@ for idx, date in enumerate(dates):
     progress_bar.progress((idx + 1) / len(dates))
 
 # %%
-st.header("Portfolio Value Over Time")
+st.header("💰 Portfolio Value Over Time")
 
 df_portfolio = pd.DataFrame(portfolio_values)
 df_portfolio["date"] = pd.to_datetime(df_portfolio["date"])
