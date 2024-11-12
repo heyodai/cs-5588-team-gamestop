@@ -13,7 +13,8 @@ from src.llm import LanguageModel
 # Constants and configurations
 DATASET_FP = "/Users/odai/repos/cs-5588-team-gamestop/datasets/CMIN-US"
 STARTING_FUNDS = 10_000  # USD
-LLM_MODEL = "llama3.2:3b"
+# LLM_MODEL = "llama3.2:3b"
+LLM_MODEL = "qwen2.5:1.5b"
 
 # Initialize instances
 market = Market(DATASET_FP)
@@ -21,6 +22,10 @@ portfolio = Portfolio()
 portfolio.add_funds(STARTING_FUNDS)
 llm = LanguageModel(LLM_MODEL, "src/prompt-templates/system-prompt.txt")
 
+# Load market open/closed data
+market_open_df = pd.read_csv("research/were-markets-open.csv")
+market_open_df["date"] = pd.to_datetime(market_open_df["date"])
+market_open_df = market_open_df.set_index("date")
 
 # %%
 # Set the page configuration
@@ -50,7 +55,6 @@ with st.sidebar:
         STARTING_FUNDS = starting_funds
         portfolio.funds = STARTING_FUNDS
 
-
 # %%
 # Prepare to store portfolio values and decisions
 dates = pd.date_range(start_date, end_date)
@@ -64,7 +68,13 @@ progress_bar = st.progress(0)
 
 for idx, date in enumerate(dates):
     date_str = date.strftime("%Y-%m-%d")
+
     st.subheader(f"Date: {date_str}")
+
+    # Check if the market was open on this date
+    if date not in market_open_df.index or not market_open_df.loc[date, "was_open"]:
+        st.write(f"Market closed on {date_str}. Skipping this day.")
+        continue
 
     # Get market info
     market_info = market.get_info(date_str)
@@ -117,14 +127,12 @@ for idx, date in enumerate(dates):
     # Update progress bar
     progress_bar.progress((idx + 1) / len(dates))
 
-
 # %%
 st.header("LLM Decisions Summary")
 
 for date_str, decision in decisions:
     st.subheader(f"Date: {date_str}")
     st.json(decision)
-
 
 # %%
 st.header("Portfolio Value Over Time")
