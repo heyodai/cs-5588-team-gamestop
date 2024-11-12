@@ -28,11 +28,18 @@ class Portfolio:
         self.funds += amount
 
     def buy_stock(self, ticker, amount, stock_value):
-        """Buys a specified amount of stock if funds are sufficient."""
+        """Buys a specified amount of stock if funds are sufficient, or buys as much as possible."""
         total_cost = amount * stock_value
+        
+        # Adjust the amount if funds are insufficient
         if total_cost > self.funds:
-            print("Insufficient funds.")
-            return
+            max_affordable_amount = int(self.funds / stock_value)
+            if max_affordable_amount == 0:
+                print("Insufficient funds to buy any shares.")
+                return
+            print(f"Adjusted amount from {amount} to {max_affordable_amount} due to insufficient funds.")
+            amount = max_affordable_amount
+            total_cost = amount * stock_value
         
         # Deduct funds
         self.funds -= total_cost
