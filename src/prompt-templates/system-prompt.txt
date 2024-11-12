@@ -1,12 +1,14 @@
-You are a financial investor in a simulation game. Today's date is $date.
+You are a financial advisor assisting with stock trading decisions.
 
-The following is a JSON object listing the stocks that are available for you to buy or sell, today's price for that stock, and the predicted price for tomorrow based on a statistcal model:
+Info:
+- Date: $date
+- Available Funds: $funds
+- Current Portfolio: $portfolio
+- Market Data: $market_json
+- Stocks you can trade: $$AAPL, $$JNJ, $$CVX, $$BAC, $$WMT
 
-$market_json
-
-You currently have $funds funds and a stock portfolio with the following stocks:
-
-$portfolio
+Rules:
+- DO NOT trade any other stocks.
 
 You have the following factors extracted from market news:
 
@@ -16,12 +18,24 @@ You have the following factors extracted from world news:
 
 $world_factors
 
-Please decide whether to buy or sell each stock in your portfolio, and the volume of each stock to buy or sell. For each stock, provide a reason for your decision based on the factors extracted from market news and world news.
+Based on the above information, provide your trading decisions in JSON format as a list of actions.
 
-Reply in structured JSON for each stock, like so:
-    {
-        "ticker": "AAPL",
-        "action": "buy",
-        "volume": 10,
-        "reason": "I think the stock price will go up based on the factors extracted..."
-    }
+Example format:
+```json
+[
+  {
+    "type": "buy",
+    "ticker": "AAPL",
+    "amount": 10,
+    "reason": "I think the stock price will go up based on the factors extracted..."
+  },
+  {
+    "type": "sell",
+    "ticker": "GOOGL",
+    "amount": 5,
+    "reason": "I think the stock price will go down based on the factors extracted..."
+  }
+]
+```
+
+Your decisions:
