@@ -128,13 +128,6 @@ for idx, date in enumerate(dates):
     progress_bar.progress((idx + 1) / len(dates))
 
 # %%
-st.header("LLM Decisions Summary")
-
-for date_str, decision in decisions:
-    st.subheader(f"Date: {date_str}")
-    st.json(decision)
-
-# %%
 st.header("Portfolio Value Over Time")
 
 df_portfolio = pd.DataFrame(portfolio_values)
