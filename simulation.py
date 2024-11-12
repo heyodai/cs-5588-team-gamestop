@@ -48,6 +48,9 @@ with st.sidebar:
         STARTING_FUNDS = starting_funds
         portfolio.funds = STARTING_FUNDS
 
+    # Risk tolerance input
+    risk_tolerance = st.selectbox("Risk Tolerance", options=["LOW", "MID", "HIGH"])
+
 # Validate date input
 if start_date > end_date:
     st.error("Error: Start date must be before end date.")
@@ -85,12 +88,13 @@ for idx, date in enumerate(dates):
     # Get portfolio makeup
     portfolio_makeup = portfolio.get_makeup()
 
-    # Get the prompt for the LLM
+    # Get the prompt for the LLM with risk tolerance
     prompt = llm.get_prompt(
         date_str,
         json.dumps(market_info),
         portfolio.funds,
         portfolio_makeup,
+        risk_tolerance=risk_tolerance,  # Pass the risk tolerance level
         market_factors=None,  # If you have market factors
         world_factors=None,  # If you have world factors
     )

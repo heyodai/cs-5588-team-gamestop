@@ -21,13 +21,14 @@ class LanguageModel:
             self.prompt_template = Template(f.read())
 
     def get_prompt(
-        self, date, market_json, funds, portfolio_makeup, market_factors, world_factors
+        self, date, market_json, funds, portfolio_makeup, market_factors, world_factors, risk_tolerance
     ):
         return self.prompt_template.substitute(
             date=date,
             market_json=market_json,  # TODO: Add statistical model inputs
             funds=funds,
             portfolio=portfolio_makeup,
+            tolerance=risk_tolerance,
             market_factors="",  # TODO: Add market factors
             world_factors="",  # TODO: Add world factors
         )

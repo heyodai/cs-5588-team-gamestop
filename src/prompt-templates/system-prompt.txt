@@ -9,6 +9,7 @@ Info:
 
 Rules:
 - DO NOT trade any other stocks.
+- Your risk tolerance is $tolerance.
 
 You have the following factors extracted from market news:
 
@@ -24,13 +25,13 @@ Example format:
   {
     "type": "buy",
     "ticker": "AAPL",
-    "amount": 10,
+    "amount": 100,
     "reason": "I think the stock price will go up based on the factors extracted..."
   },
   {
     "type": "sell",
     "ticker": "GOOGL",
-    "amount": 5,
+    "amount": 550,
     "reason": "I think the stock price will go down based on the factors extracted..."
   }
 
