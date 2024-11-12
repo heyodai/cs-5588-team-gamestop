@@ -13,7 +13,6 @@ from src.llm import LanguageModel
 # Constants and configurations
 DATASET_FP = "/Users/odai/repos/cs-5588-team-gamestop/datasets/CMIN-US"
 STARTING_FUNDS = 10_000  # USD
-# LLM_MODEL = "llama3.2:3b"
 LLM_MODEL = "qwen2.5:1.5b"
 
 # Initialize instances
@@ -60,6 +59,10 @@ dates = pd.date_range(start_date, end_date)
 portfolio_values = []
 decisions = []
 
+# Display portfolio value chart at the top
+st.header("💰 Portfolio Value Over Time")
+portfolio_chart = st.line_chart(pd.DataFrame({"value": []}))
+
 st.header("Simulation Progress")
 
 # Progress bar
@@ -68,12 +71,13 @@ progress_bar = st.progress(0)
 for idx, date in enumerate(dates):
     date_str = date.strftime("%Y-%m-%d")
 
-    st.subheader(f"📅 Date: {date_str}")
-
     # Check if the market was open on this date
     if date not in market_open_df.index or not market_open_df.loc[date, "was_open"]:
+        st.subheader(f"❌ Date: {date_str}")
         st.write(f"Market closed on {date_str}. Skipping this day.")
         continue
+    
+    st.subheader(f"📅 Date: {date_str}")
 
     # Get market info
     market_info = market.get_info(date_str)
@@ -103,6 +107,11 @@ for idx, date in enumerate(dates):
         actions = json.loads(llm_response)
         for action in actions:
             ticker = action["ticker"]
+            
+            if ticker not in ['AAPL, JNJ, CVX, BAC, WMT']:
+                # TODO: This is a band-aid fix.
+                continue
+            
             amount = action["amount"]
             if action["type"].lower() == "buy":
                 stock_value = market.stocks[ticker].get_prices(date_str)[0]["close"]
@@ -123,14 +132,14 @@ for idx, date in enumerate(dates):
     total_value = portfolio.get_value()
     portfolio_values.append({"date": date_str, "value": total_value})
 
+    # Update the portfolio value chart dynamically
+    portfolio_chart.add_rows(pd.DataFrame([{"date": date, "value": total_value}]).set_index("date"))
+
     # Update progress bar
     progress_bar.progress((idx + 1) / len(dates))
 
 # %%
-st.header("💰 Portfolio Value Over Time")
-
+# Final portfolio values data frame
 df_portfolio = pd.DataFrame(portfolio_values)
 df_portfolio["date"] = pd.to_datetime(df_portfolio["date"])
 df_portfolio = df_portfolio.set_index("date")
-
-st.line_chart(df_portfolio["value"])
