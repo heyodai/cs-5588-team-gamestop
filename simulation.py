@@ -35,25 +35,24 @@ st.set_page_config(page_title="LLM Stock Trading Simulation", layout="wide")
 # Title of the app
 st.title("LLM Stock Trading Simulation")
 
-# Date input widgets
-col1, col2 = st.columns(2)
-with col1:
-    start_date = st.date_input("Start Date", datetime.date(2018, 1, 1))
-with col2:
-    end_date = st.date_input("End Date", datetime.date(2018, 1, 7))
-
-# Validate date input
-if start_date > end_date:
-    st.error("Error: Start date must be before end date.")
-    st.stop()
-
 with st.sidebar:
     st.header("Simulation Settings")
+
+    # Date input widgets
+    start_date = st.date_input("Start Date", datetime.date(2018, 1, 1))
+    end_date = st.date_input("End Date", datetime.date(2018, 1, 7))
+
+    # Starting funds input
     starting_funds = st.number_input("Starting Funds", value=10000)
     # Update the portfolio funds if changed
     if starting_funds != STARTING_FUNDS:
         STARTING_FUNDS = starting_funds
         portfolio.funds = STARTING_FUNDS
+
+# Validate date input
+if start_date > end_date:
+    st.error("Error: Start date must be before end date.")
+    st.stop()
 
 # %%
 # Prepare to store portfolio values and decisions
