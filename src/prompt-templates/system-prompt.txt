@@ -21,7 +21,6 @@ $world_factors
 Based on the above information, provide your trading decisions in JSON format as a list of actions.
 
 Example format:
-```json
 [
   {
     "type": "buy",
@@ -36,6 +35,5 @@ Example format:
     "reason": "I think the stock price will go down based on the factors extracted..."
   }
 ]
-```
 
 Your decisions:
