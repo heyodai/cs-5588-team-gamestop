@@ -96,7 +96,7 @@ for idx, date in enumerate(dates):
     decisions.append((date_str, llm_response))
 
     # Display the LLM's decision
-    st.write("🤖 LLM Decision:\n" + llm_response)
+    st.write(f"🤖 LLM Decision:\n```{llm_response}\n```")
 
     # Parse the LLM's decision and update the portfolio
     try:
@@ -105,7 +105,7 @@ for idx, date in enumerate(dates):
             ticker = action["ticker"]
             amount = action["amount"]
             if action["type"].lower() == "buy":
-                stock_value = market.stocks[ticker].get_price(date_str)
+                stock_value = market.stocks[ticker].get_prices(date_str)[0]["close"]
                 portfolio.buy_stock(ticker, amount, stock_value)
             elif action["type"].lower() == "sell":
                 portfolio.sell_stock(ticker, amount)
@@ -116,7 +116,7 @@ for idx, date in enumerate(dates):
 
     # Update stock values in the portfolio
     for ticker in portfolio.stocks:
-        new_value = market.stocks[ticker].get_price(date_str)
+        new_value = market.stocks[ticker].get_prices(date_str)[0]["close"]
         portfolio.update_stock_value(ticker, new_value)
 
     # Update portfolio value
