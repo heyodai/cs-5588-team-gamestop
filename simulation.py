@@ -32,17 +32,17 @@ st.set_page_config(page_title="LLM Stock Trading Simulation", layout="wide")
 
 # %%
 # Title of the app
-st.title("💹 MarketPulse 📈")
+st.title("🚀 MarketPulse 📈")
 
 with st.sidebar:
     st.sidebar.header("⚙️ Simulation Settings")
 
     # Date input widgets
-    start_date = st.date_input("Start Date", datetime.date(2018, 1, 1))
-    end_date = st.date_input("End Date", datetime.date(2018, 1, 7))
+    start_date = st.date_input("Start Date", datetime.date(2021, 1, 1))
+    end_date = st.date_input("End Date", datetime.date(2021, 12, 31))
 
     # Starting funds input
-    starting_funds = st.number_input("Starting Funds", value=10000)
+    starting_funds = st.number_input("Starting Funds", value=STARTING_FUNDS)
     # Update the portfolio funds if changed
     if starting_funds != STARTING_FUNDS:
         STARTING_FUNDS = starting_funds
@@ -108,7 +108,7 @@ for idx, date in enumerate(dates):
         for action in actions:
             ticker = action["ticker"]
             
-            if ticker not in ['AAPL, JNJ, CVX, BAC, WMT']:
+            if ticker not in ['AAPL', 'JNJ', 'CVX', 'BAC', 'WMT']:
                 # TODO: This is a band-aid fix.
                 continue
             
@@ -123,13 +123,18 @@ for idx, date in enumerate(dates):
     except Exception as e:
         st.error(f"Error parsing LLM response on {date_str}: {e}")
 
-    # Update stock values in the portfolio
     for ticker in portfolio.stocks:
-        new_value = market.stocks[ticker].get_prices(date_str)[0]["close"]
-        portfolio.update_stock_value(ticker, new_value)
+        prices = market.stocks[ticker].get_prices(date_str)
+        if prices:
+            new_value = prices[0]["close"]
+            portfolio.update_stock_value(ticker, new_value)
+        else:
+            st.error(f"Price data for {ticker} on {date_str} is missing.")
+
 
     # Update portfolio value
     total_value = portfolio.get_value()
+    st.write(f"💰 Portfolio Value: ${total_value:.2f}")
     portfolio_values.append({"date": date_str, "value": total_value})
 
     # Update the portfolio value chart dynamically
