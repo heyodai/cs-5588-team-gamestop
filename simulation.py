@@ -32,7 +32,7 @@ st.set_page_config(page_title="LLM Stock Trading Simulation", layout="wide")
 
 # %%
 # Title of the app
-st.title("🚀 MarketPulse 📈")
+st.title("🚀 MarketPulse 🚀")
 
 with st.sidebar:
     st.sidebar.header("⚙️ Simulation Settings")
@@ -50,6 +50,17 @@ with st.sidebar:
 
     # Risk tolerance input
     risk_tolerance = st.selectbox("Risk Tolerance", options=["LOW", "MID", "HIGH"])
+    
+    # Stock selection checkboxes
+    st.sidebar.subheader("Select Stocks to Trade")
+    tradeable_stocks = {
+        'AAPL': st.checkbox("Apple (AAPL)", value=True),
+        'JNJ': st.checkbox("Johnson & Johnson (JNJ)", value=True),
+        'CVX': st.checkbox("Chevron (CVX)", value=True),
+        'BAC': st.checkbox("Bank of America (BAC)", value=True),
+        'WMT': st.checkbox("Walmart (WMT)", value=True)
+    }
+    selected_stocks = [ticker for ticker, is_selected in tradeable_stocks.items() if is_selected]
 
 # Validate date input
 if start_date > end_date:
@@ -60,16 +71,25 @@ if start_date > end_date:
 # Prepare to store portfolio values and decisions
 dates = pd.date_range(start_date, end_date)
 portfolio_values = []
+funds_values = []
+stock_values = []
 decisions = []
 
-# Display portfolio value chart at the top
-st.header("💰 Portfolio Value Over Time")
-portfolio_chart = st.line_chart(pd.DataFrame({"value": []}))
-
 st.header("Simulation Progress")
-
-# Progress bar
 progress_bar = st.progress(0)
+
+# Display charts side by side
+st.header("Portfolio Value Over Time")
+col1, col2, col3 = st.columns(3)
+with col1:
+    st.subheader("💸 Funds")
+    funds_chart = st.line_chart(pd.DataFrame({"value": []}), color="#00ff00")
+with col2:
+    st.subheader("📈 Stock Value")
+    stock_chart = st.line_chart(pd.DataFrame({"value": []}))
+with col3:
+    st.subheader("💰 Total Portfolio Value")
+    total_value_chart = st.line_chart(pd.DataFrame({"value": []}))
 
 for idx, date in enumerate(dates):
     date_str = date.strftime("%Y-%m-%d")
@@ -135,20 +155,36 @@ for idx, date in enumerate(dates):
         else:
             st.error(f"Price data for {ticker} on {date_str} is missing.")
 
-
-    # Update portfolio value
+    # Update portfolio values
+    funds = portfolio.funds
+    stock_value = portfolio.get_stock_value()
     total_value = portfolio.get_value()
-    st.write(f"💰 Portfolio Value: ${total_value:.2f}")
+
+    # Append values to lists
+    funds_values.append({"date": date_str, "value": funds})
+    stock_values.append({"date": date_str, "value": stock_value})
     portfolio_values.append({"date": date_str, "value": total_value})
 
-    # Update the portfolio value chart dynamically
-    portfolio_chart.add_rows(pd.DataFrame([{"date": date, "value": total_value}]).set_index("date"))
+    # Update each chart dynamically
+    funds_chart.add_rows(pd.DataFrame([{"date": date, "value": funds}]).set_index("date"))
+    stock_chart.add_rows(pd.DataFrame([{"date": date, "value": stock_value}]).set_index("date"))
+    total_value_chart.add_rows(pd.DataFrame([{"date": date, "value": total_value}]).set_index("date"))
 
     # Update progress bar
     progress_bar.progress((idx + 1) / len(dates))
 
 # %%
-# Final portfolio values data frame
+# Final portfolio values data frames
 df_portfolio = pd.DataFrame(portfolio_values)
+df_funds = pd.DataFrame(funds_values)
+df_stocks = pd.DataFrame(stock_values)
+
+# Set the date column as the index for each dataframe
 df_portfolio["date"] = pd.to_datetime(df_portfolio["date"])
 df_portfolio = df_portfolio.set_index("date")
+
+df_funds["date"] = pd.to_datetime(df_funds["date"])
+df_funds = df_funds.set_index("date")
+
+df_stocks["date"] = pd.to_datetime(df_stocks["date"])
+df_stocks = df_stocks.set_index("date")

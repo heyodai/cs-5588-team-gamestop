@@ -87,10 +87,13 @@ class Portfolio:
         }
         return json.dumps(portfolio_data, indent=2)
     
+    def get_stock_value(self):
+        """Returns the value of all stocks in the portfolio."""
+        return sum(stock.amount * stock.value for stock in self.stocks.values())
+    
     def get_value(self):
         """Calculates the total value of the portfolio (cash + stocks)."""
-        total_stock_value = sum(stock.amount * stock.value for stock in self.stocks.values())
-        return self.funds + total_stock_value
+        return self.funds + self.get_stock_value()
 
 
 # %%
